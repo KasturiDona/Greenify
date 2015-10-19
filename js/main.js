@@ -5,13 +5,22 @@ app.animate = function () {
 	app.cube.rotation.x += 0.05;
 	// app.cube.scale.y += 0.02;
 	app.cube.rotation.y += 0.05;
+	
 	app.renderer.render( app.scene, app.camera );
+};
+
+app.animateRain = function () {
+	requestAnimationFrame( app.animateRain );
+	group.position.y -= 0.05;
+	app.renderer.render( app.scene, app.camera );
+	
 };
 
 app.addEventHandlers = function () {
 	window.addEventListener("mousemove", function() {
 		app.cube.position.x = event.clientX - ( app.width / 2 );
 		app.cube.position.y = ( event.clientY - ( app.height / 2 ) ) * -1;
+
 	});
 
 	window.addEventListener("resize", function() {
@@ -24,12 +33,17 @@ app.addEventHandlers = function () {
 		app.renderer.setSize( app.width, app.height );
 	});
 
+	$('#rain').on('click', function () {
+		app.addWaterDrop();
+	});
+
 };
 
 app.addCircle = function () {
-	var circleShape = new THREE.SphereGeometry( 50, 16, 16 );
-	var material = new THREE.MeshBasicMaterial({ color: 0xEC407A, wireframe: true });
+	var circleShape = new THREE.SphereGeometry( 10, 16, 16 );
+	var material = new THREE.MeshBasicMaterial({ color: 0xFFD600 });
 	app.sphere = new THREE.Mesh( circleShape, material );
+	app.sphere.position.set(5, 5, 0);
 	app.scene.add( app.sphere );
 
 };
@@ -47,6 +61,34 @@ app.addBox = function () {
 	app.addCircle();
 	app.animate();
 };
+
+// app.addWaterDrop = function () {
+// 	var loader = new THREE.JSONLoader();
+// 	loader.load('/assets/pic.json', function(object) {
+// 		var mesh = new THREE.Mesh( object );
+// 		app.scene.add( mesh );
+// 	});
+// 	app.animateRain();
+// };
+
+app.addWaterDrop = function () {
+	var group = new THREE.Object3D();
+	var loader = new THREE.JSONLoader();
+	  loader.load( "/assets/pic.json", function( geometry ){
+	    // var material = new THREE.MeshLambertMaterial({ color: 0x55B663 });
+	    var mesh = new THREE.Mesh( geometry );
+	    for ( var i = 0; i < 20; i += 4 ) {
+	      for ( var j = 0; j < 20; j += 4 ) {
+	        var instance = mesh.clone();
+	        instance.position.set( i, j, 0 );
+	        group.add( instance );
+	      }
+	    }
+	  });
+	  app.scene.add( group );
+	  app.animateRain();
+};
+
 
 app.init = function () {
 	console.log("page is loaded");
