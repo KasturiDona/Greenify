@@ -2,10 +2,6 @@ var app = app || {};
 
 app.animate = function () {
 	requestAnimationFrame( app.animate );
-	app.cube.rotation.x += 0.05;
-	// app.cube.scale.y += 0.02;
-	app.cube.rotation.y += 0.05;
-	
 	app.renderer.render( app.scene, app.camera );
 };
 
@@ -27,8 +23,8 @@ app.animateRain = function () {
 
 app.addEventHandlers = function () {
 	window.addEventListener("mousemove", function() {
-		app.cube.position.x = event.clientX - ( app.width / 2 );
-		app.cube.position.y = ( event.clientY - ( app.height / 2 ) ) * -1;
+		// app.cube.position.x = event.clientX - ( app.width / 2 );
+		// app.cube.position.y = ( event.clientY - ( app.height / 2 ) ) * -1;
 
 	});
 
@@ -43,21 +39,29 @@ app.addEventHandlers = function () {
 	});
 
 	$('#rain').on('click', function () {
+		app.scene.remove( app.sphere );
 		app.addWaterDrop(true);
 	});
 
 	$('#stop_rain').on('click', function () {
+		app.scene.add( app.sphere );
 		app.addWaterDrop(false);
+	});
+
+	$('#seed').on('click', function () {
+		app.addPlant();
 	});
 
 };
 
-app.addCircle = function () {
+app.addSun = function () {
 	var circleShape = new THREE.SphereGeometry( 10, 16, 16 );
 	var material = new THREE.MeshBasicMaterial({ color: 0xFFD600 });
 	app.sphere = new THREE.Mesh( circleShape, material );
 	app.sphere.position.set(100, 5, 0);
 	app.scene.add( app.sphere );
+	app.renderer.render( app.scene, app.camera );
+	app.animate();
 
 };
 
@@ -75,17 +79,16 @@ app.addBox = function () {
 	app.animate();
 };
 
-// app.addWaterDrop = function () {
-// 	var loader = new THREE.JSONLoader();
-// 	loader.load('/assets/pic.json', function(object) {
-// 		var mesh = new THREE.Mesh( object );
-// 		app.scene.add( mesh );
-// 	});
-// 	app.animateRain();
-// };
+app.addPlant = function () {
+	var loader = new THREE.JSONLoader();
+	loader.load('/assets/twig.json', function(object) {
+		var mesh = new THREE.Mesh( object);
+		app.scene.add(mesh);
+	});
+};
 
 app.addWaterDrop = function (execute) {
-
+	
 	app.raining = execute;
 
 	app.group = new THREE.Object3D();
@@ -93,8 +96,8 @@ app.addWaterDrop = function (execute) {
 	var loader = new THREE.JSONLoader();
 	app.quarterWidth = Math.round( app.width / 30 );
 
-  	loader.load( "/assets/pic.json", function( geometry ){
-    var material = new THREE.MeshLambertMaterial({ color: 0x00effe });
+  	loader.load( "/assets/rain_drop.json", function( geometry ){
+    var material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
     var mesh = new THREE.Mesh( geometry, material );
     for ( var i = 0; i <= app.width; i += app.quarterWidth ) {
       for ( var j = 0; j <= app.height; j += 8 ) {
@@ -132,7 +135,7 @@ app.init = function () {
 	app.controls = new THREE.OrbitControls( app.camera, app.renderer.domElement );
 
 	app.renderer.render( app.scene, app.camera );
-	app.addBox();
+	app.addSun();
 
 	app.addEventHandlers();
 };
