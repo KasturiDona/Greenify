@@ -1,28 +1,35 @@
 var app = app || {};
+var sunAdded = false;
 
 app.animate = function () {
 	requestAnimationFrame( app.animate );
 
-	// app.selectedObject = app.scene.getObjectByName("the_sun");
-	// app.selectedObject.rotation.z += 0.005;
-	
+	app.selectedObject = app.scene.getObjectByName("the_sun");
+
+	if ( sunAdded && app.selectedObject ) {
+		app.selectedObject.rotation.z += 0.005;
+	}
+	app.animateRain();
 	app.renderer.render( app.scene, app.camera );
 };
 
 app.animateRain = function () {
-	
 	if (app.raining) {
-		requestAnimationFrame( app.animateRain );
+		// requestAnimationFrame( app.animateRain );
+		if ( app.particleSystem.position.y <= -135 ) {
+			app.particleSystem.position.y = 0;
+		}
 		app.particleSystem.position.y -= 0.5;
 
 		app.selectedObject = app.scene.getObjectByName("plant");
-		app.selectedObject.scale.y += 0.005;
-
-		app.renderer.render( app.scene, app.camera );
+		if ( app.selectedObject ) {
+			app.selectedObject.scale.y += 0.001;
+		}
 	} else {
-		for ( i = app.scene.children.length - 1; i >= 0 ; i -- ) {
+		for ( var i = app.scene.children.length - 1; i >= 0 ; i-- ) {
             var obj = app.scene.children[ i ];
-            if ( obj.name === "Rain" ){
+
+            if ( obj.name && obj.name === "Rain" ){
             	app.scene.remove( obj );
     		}
         }
@@ -54,7 +61,12 @@ app.addEventHandlers = function () {
 
 	$('#stop_rain').on('click', function () {
 		var selectedObject = app.scene.getObjectByName( "the_sun" );
-		app.scene.add( selectedObject );
+		if ( !selectedObject ) {
+			app.addSun();
+			selectedObject = app.scene.getObjectByName( "the_sun" );
+		}
+		app.scene.remove( app.rainGroup );
+		app.raining = false;
 		app.addRain( false );
 	});
 
@@ -65,7 +77,7 @@ app.addEventHandlers = function () {
 };
 
 app.addSun = function () {
-
+	sunAdded = true;
 	var loader = new THREE.ObjectLoader();
 	loader.load('/assets/sun.json', function( object ) {
 		object.name = "the_sun";
@@ -81,6 +93,12 @@ app.addSun = function () {
 };
 
 app.addPlant = function () {
+
+	app.quaterWidth = Math.round( app.width / 30 );
+
+	app.group = new THREE.Object3D();
+	app.group.name = "Plant_group";
+
 	var loader = new THREE.ObjectLoader();
 	loader.load('/assets/grass_plant.json', function( object ) {
 		object.name = "plant";
@@ -92,9 +110,17 @@ app.addPlant = function () {
 				child.material.color.setRGB( 0, 1, 0 );
 				child.material.color = new THREE.Color( "rgb(0, 1, 0)" );
 			}
+
+			for ( var i = 0; i <= app.width; i += app.quarterWidth ) {
+		      for ( var j = 0; j <= app.height; j += 8 ) {
+		        var instance = child.clone();
+		        instance.position.set( i / 2, j, 0 );
+		        app.group.add( instance );
+		      }
+		    }
 		});
 
-		object.position.y = 0;
+		app.group.position.x -= 50;
 		app.scene.add( object );
 	});
 };
@@ -128,8 +154,8 @@ app.addPlant = function () {
 app.addRain = function ( execute ) {
 	app.raining = execute;
 
-	app.group = new THREE.Object3D();
-	app.group.name = "Rain";
+	app.rainGroup = app.rainGroup || new THREE.Object3D();
+	app.rainGroup.name = "Rain";
 
 	app.particles = new THREE.SphereGeometry();
 	app.quarterWidth = Math.round( app.width / 30 );
@@ -138,19 +164,13 @@ app.addRain = function ( execute ) {
     	var particle = new THREE.Vector3( Math.random() * 500 - 250, Math.random() * 500 - 250, Math.random() * 500 - 250 );
     	app.particles.vertices.push( particle );
 	}
+
 	app.particleTexture = THREE.ImageUtils.loadTexture( "/assets/raindrop.png" );
 	app.particleMaterial = new THREE.PointsMaterial({ map: app.particleTexture, transparent: true, size: 5 });
 	app.particleSystem = new THREE.Points(app.particles, app.particleMaterial);
 
-	for ( var i = 0; i <= app.width; i += app.quarterWidth ) {
-      for ( var j = 0; j <= app.height; j += 8 ) {
-        var instance = app.particleSystem.clone();
-        instance.position.set( i / 2, j, 0 );
-        app.group.add( instance );
-      }
-    }
-
 	app.scene.add( app.particleSystem );
+	app.particleSystem.name = "Rain";
 	app.animateRain();
 };
 
