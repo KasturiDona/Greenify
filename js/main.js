@@ -10,10 +10,19 @@ app.animate = function () {
 };
 
 app.animateRain = function () {
-	requestAnimationFrame( app.animateRain );
-	group.position.y -= 0.05;
-	app.renderer.render( app.scene, app.camera );
 	
+	if (app.raining) {
+		requestAnimationFrame( app.animateRain );
+		app.group.position.y -= 0.5;
+		app.renderer.render( app.scene, app.camera );
+	} else {
+		for ( i = app.scene.children.length - 1; i >= 0 ; i -- ) {
+            var obj = app.scene.children[ i ];
+            if ( obj.name === "Rain" ){
+            	app.scene.remove(obj);
+    		}
+        }
+	}
 };
 
 app.addEventHandlers = function () {
@@ -34,7 +43,11 @@ app.addEventHandlers = function () {
 	});
 
 	$('#rain').on('click', function () {
-		app.addWaterDrop();
+		app.addWaterDrop(true);
+	});
+
+	$('#stop_rain').on('click', function () {
+		app.addWaterDrop(false);
 	});
 
 };
@@ -43,7 +56,7 @@ app.addCircle = function () {
 	var circleShape = new THREE.SphereGeometry( 10, 16, 16 );
 	var material = new THREE.MeshBasicMaterial({ color: 0xFFD600 });
 	app.sphere = new THREE.Mesh( circleShape, material );
-	app.sphere.position.set(5, 5, 0);
+	app.sphere.position.set(100, 5, 0);
 	app.scene.add( app.sphere );
 
 };
@@ -71,22 +84,30 @@ app.addBox = function () {
 // 	app.animateRain();
 // };
 
-app.addWaterDrop = function () {
-	var group = new THREE.Object3D();
+app.addWaterDrop = function (execute) {
+
+	app.raining = execute;
+
+	app.group = new THREE.Object3D();
+	app.group.name = "Rain";
 	var loader = new THREE.JSONLoader();
-	  loader.load( "/assets/pic.json", function( geometry ){
-	    // var material = new THREE.MeshLambertMaterial({ color: 0x55B663 });
-	    var mesh = new THREE.Mesh( geometry );
-	    for ( var i = 0; i < 20; i += 4 ) {
-	      for ( var j = 0; j < 20; j += 4 ) {
-	        var instance = mesh.clone();
-	        instance.position.set( i, j, 0 );
-	        group.add( instance );
-	      }
-	    }
-	  });
-	  app.scene.add( group );
-	  app.animateRain();
+	app.quarterWidth = Math.round( app.width / 30 );
+
+  	loader.load( "/assets/pic.json", function( geometry ){
+    var material = new THREE.MeshLambertMaterial({ color: 0x00effe });
+    var mesh = new THREE.Mesh( geometry, material );
+    for ( var i = 0; i <= app.width; i += app.quarterWidth ) {
+      for ( var j = 0; j <= app.height; j += 8 ) {
+        var instance = mesh.clone();
+        instance.position.set( i / 2, j, 0 );
+        app.group.add( instance );
+      }
+    }
+  });
+  app.group.position.x -= 150;
+  app.scene.add( app.group );
+  app.animateRain();
+
 };
 
 
