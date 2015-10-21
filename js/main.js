@@ -1,6 +1,7 @@
 var app = app || {};
 var sunAdded = false;
 var cloudAdded = false;
+var birdAdded = false;
 
 app.animate = function () {
 	requestAnimationFrame( app.animate );
@@ -12,7 +13,40 @@ app.animate = function () {
 	}
 	app.animateRain();
 	app.animateClouds();
+	app.animateBirds();
 	app.renderer.render( app.scene, app.camera );
+};
+
+app.animateBirds = function () {
+	if( app.meshBee.position.x >= app.width / 4 ) {
+		app.meshBee.position.x =-120;
+	}
+	app.meshBee.position.x += 0.05;
+
+	if( app.meshBee.position.y >= app.height / 10 ) {
+		app.meshBee.position.y = 0;
+	}
+	app.meshBee.position.y += 0.05;
+
+	if( app.meshButterfly1.position.x >= app.width / 4 ) {
+		app.meshButterfly1.position.x = -120;
+	}
+	app.meshButterfly1.position.x += 0.05;
+
+	if( app.meshButterfly1.position.y >= app.height / 10 ) {
+		app.meshButterfly1.position.y = 0;
+	}
+	app.meshButterfly1.position.y += 0.05;
+
+	if( app.meshButterfly2.position.x <= -(app.width / 4) ) {
+		app.meshButterfly2.position.x = 120;
+	}
+	app.meshButterfly2.position.x -= 0.05;
+
+	if( app.meshButterfly2.position.y >= app.height / 10 ) {
+		app.meshButterfly2.position.y = 0;
+	}
+	app.meshButterfly2.position.y += 0.05;
 };
 
 app.animateClouds = function () {
@@ -54,7 +88,7 @@ app.animateRain = function () {
 
 			app.allPlants = _.filter( app.scene.children, function (child) {  return child.name === "plant_group" });
 			_.each(app.allPlants, function (plant) {
-				plant.scale.y += 0.001;
+				plant.scale.y += 0.002;
 			});
 		}
 
@@ -62,8 +96,8 @@ app.animateRain = function () {
 		if ( app.flowerObject ) {
 			app.allFlowers = _.filter( app.scene.children, function (child) { return child.name === "flower_group" });
 			_.each(app.allFlowers, function (flower) {
-				flower.scale.y += 0.002;
-				flower.scale.x += 0.001;
+				flower.scale.y += 0.004;
+				flower.scale.x += 0.002;
 			});	
 		}
 	} else {
@@ -95,8 +129,12 @@ app.addEventHandlers = function () {
 	});
 
 	$('#rain').on('click', function () {
+		$('#stop_rain').show();
 		var selectedObject = app.scene.getObjectByName( "the_sun" );	
 		app.scene.remove( selectedObject );
+		app.scene.remove( app.meshButterfly1 );
+		app.scene.remove( app.meshButterfly2 );
+		app.scene.remove( app.meshBee );
 		app.addRain( true );
 	});
 
@@ -107,12 +145,20 @@ app.addEventHandlers = function () {
 			selectedObject = app.scene.getObjectByName( "the_sun" );
 		}
 		app.scene.remove( app.rainGroup );
+		app.scene.add( app.meshButterfly1 );
+		app.scene.add( app.meshButterfly2 );
+		app.scene.add( app.meshBee );
 		app.raining = false;
 		app.addRain( false );
+		$('#stop_rain').hide();
 	});
 
 	$('#seed').on('click', function () {
-		app.addPlant();
+		app.addFlower();
+	});
+
+	$('#refresh').on('click', function () {
+		location.reload();
 	});
 
 };
@@ -130,10 +176,16 @@ app.addSun = function () {
 	});
 
 	app.renderer.render( app.scene, app.camera );
-	app.addFlower();
+	app.addPlant();
+
 	if ( !cloudAdded ) {
 		app.addClouds();
 	}
+
+	if ( !birdAdded ) {
+		app.addBirds();
+	}
+
 	app.animate();
 };
 
@@ -156,6 +208,36 @@ app.addClouds = function () {
 
 };
 
+app.addBirds = function () {
+	birdAdded = true;
+	app.geometry = new THREE.PlaneGeometry(50, 50);
+	app.bee = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("/assets/bee1.png"), transparent: true });
+	app.meshBee = new THREE.Mesh( app.geometry, app.bee );
+	app.meshBee.scale.multiplyScalar(0.25);
+	// app.meshBee.position.z += 0;
+	app.meshBee.position.x += -90;
+	app.meshBee.position.y += -10;
+	app.scene.add( app.meshBee );
+
+	app.geometry = new THREE.PlaneGeometry(50, 50);
+	app.butterfly1 = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("/assets/butterfly1.png"), transparent: true });
+	app.meshButterfly1 = new THREE.Mesh( app.geometry, app.butterfly1 );
+	app.meshButterfly1.scale.multiplyScalar(0.25);
+	app.meshButterfly1.position.z += 0;
+	app.meshButterfly1.position.x += 0;
+	app.meshButterfly1.position.y -= 15;
+	app.scene.add( app.meshButterfly1 );
+
+	app.geometry = new THREE.PlaneGeometry(50, 50);
+	app.butterfly2 = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("/assets/butterfly2.png"), transparent: true });
+	app.meshButterfly2 = new THREE.Mesh( app.geometry, app.butterfly2 );
+	app.meshButterfly2.scale.multiplyScalar(0.25);
+	app.meshButterfly2.position.z += 0;
+	app.meshButterfly2.position.x += -20;
+	app.meshButterfly2.position.y -= 5;
+	app.scene.add( app.meshButterfly2 );
+};
+
 app.addFlower = function () {
 
 	app.quaterWidth = Math.round( app.width / 30 );
@@ -169,6 +251,11 @@ app.addFlower = function () {
 			object.traverse( function ( child ) {
 				if ( child instanceof THREE.Mesh ) {
 	               	app.flower.add( child );
+	               	child.material.specular = new THREE.Color( 0x00ff00 );
+					child.material.emissive = new THREE.Color( 0xffff00 );
+					child.material.color.setHex( 0x00FF00 );
+					child.material.color.setRGB( 0, 1, 0 );
+					child.material.color = new THREE.Color( "rgb(0, 1, 0)" );
 				}
 			});
 		} catch (error) {}
@@ -324,10 +411,24 @@ app.init = function () {
 	app.renderer.render( app.scene, app.camera );
 	app.addSun();
 
+	$('#stop_rain').hide();
+
 	app.addEventHandlers();
 };
 
-window.onload = app.init; // $(document).ready();
+// window.onload = app.init; // $(document).ready();
+
+$(document).ready( function () {
+	$('.container').hide();
+	$('.home').show();
+	$('#play').on('click', function () {
+		$('.container').show();
+		$('.home').hide();
+		app.init();
+	});
+});
+
+
 
 
 
