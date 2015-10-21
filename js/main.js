@@ -1,5 +1,6 @@
 var app = app || {};
 var sunAdded = false;
+var cloudAdded = false;
 
 app.animate = function () {
 	requestAnimationFrame( app.animate );
@@ -10,7 +11,20 @@ app.animate = function () {
 		app.selectedObject.rotation.z += 0.005;
 	}
 	app.animateRain();
+	app.animateClouds();
 	app.renderer.render( app.scene, app.camera );
+};
+
+app.animateClouds = function () {
+	if( app.meshClouds.position.x >= app.width / 4 ) {
+		app.meshClouds.position.x =-120;
+	}
+	app.meshClouds.position.x += 0.05;
+
+	if( app.meshClouds_copy.position.x >= app.width / 4 ) {
+		app.meshClouds_copy.position.x = -120;
+	}
+	app.meshClouds_copy.position.x += 0.05;
 };
 
 app.animateRain = function () {
@@ -42,9 +56,8 @@ app.animateRain = function () {
 			_.each(app.allPlants, function (plant) {
 				plant.scale.y += 0.001;
 			});
-
-
 		}
+
 		app.flowerObject = app.scene.getObjectByName("flower_group");
 		if ( app.flowerObject ) {
 			app.allFlowers = _.filter( app.scene.children, function (child) { return child.name === "flower_group" });
@@ -118,16 +131,29 @@ app.addSun = function () {
 
 	app.renderer.render( app.scene, app.camera );
 	app.addFlower();
-	app.addClouds();
+	if ( !cloudAdded ) {
+		app.addClouds();
+	}
 	app.animate();
 };
 
 app.addClouds = function () {
-	app.geometry = new THREE.SphereGeometry(600, 50, 25);
+	cloudAdded = true;
+	app.geometry = new THREE.PlaneGeometry(200, 50);
 	app.clouds = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("/assets/cloud3.png"), transparent: true });
 	app.meshClouds = new THREE.Mesh( app.geometry, app.clouds );
-	app.meshClouds.scale.set(1, 1, 1);
+	app.meshClouds.scale.multiplyScalar(0.5);
+	app.meshClouds.position.z += 0;
+	app.meshClouds.position.x += -90;
+	app.meshClouds.position.y += 40;
 	app.scene.add( app.meshClouds );
+
+	app.meshClouds_copy = app.meshClouds.clone();
+	app.meshClouds_copy.position.z += 0;
+	app.meshClouds_copy.position.x += 90;
+	app.meshClouds_copy.position.y += 30;
+	app.scene.add( app.meshClouds_copy );
+
 };
 
 app.addFlower = function () {
@@ -155,8 +181,7 @@ app.addFlower = function () {
 
 			app.scene.add( app.flower_copy );
 
-			}
-			
+			}	
 		}
 	});
 };
