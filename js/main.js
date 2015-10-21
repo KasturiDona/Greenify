@@ -88,7 +88,7 @@ app.animateRain = function () {
 
 			app.allPlants = _.filter( app.scene.children, function (child) {  return child.name === "plant_group" });
 			_.each(app.allPlants, function (plant) {
-				plant.scale.y += 0.002;
+				plant.scale.y += 0.005;
 			});
 		}
 
@@ -96,8 +96,8 @@ app.animateRain = function () {
 		if ( app.flowerObject ) {
 			app.allFlowers = _.filter( app.scene.children, function (child) { return child.name === "flower_group" });
 			_.each(app.allFlowers, function (flower) {
-				flower.scale.y += 0.004;
-				flower.scale.x += 0.002;
+				flower.scale.y += 0.005;
+				flower.scale.x += 0.003;
 			});	
 		}
 	} else {
