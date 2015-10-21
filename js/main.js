@@ -21,9 +21,27 @@ app.animateRain = function () {
 		}
 		app.particleSystem.position.y -= 0.5;
 
-		app.selectedObject = app.scene.getObjectByName("plant");
+		app.selectedObject = app.scene.getObjectByName("plant_group");
 		if ( app.selectedObject ) {
-			app.selectedObject.scale.y += 0.001;
+			// app.selectedObject.scale.y += 0.001;
+
+			// app.allPlants = [];
+			// for (var i = 0; i < app.scene.children; i++ ) {
+			// 	var child = app.scene.children[i];
+			// 	if ( child.name === "plant_group" ) {
+			// 		app.allPlants.push( child )
+			// 	}
+			// }
+
+			// for (var i = 0; i < app.allPlants; i++) {
+			// 	var plant = app.allPlants[i];
+			// 	plant.scale.y += 0.001;
+			// }
+
+			app.allPlants = _.filter( app.scene.children, function (child) {  return child.name === "plant_group" });
+			_.each(app.allPlants, function (plant) {
+				plant.scale.y += 0.001;
+			});
 		}
 	} else {
 		for ( var i = app.scene.children.length - 1; i >= 0 ; i-- ) {
@@ -89,39 +107,59 @@ app.addSun = function () {
 	});
 
 	app.renderer.render( app.scene, app.camera );
+	app.addFlower();
 	app.animate();
+};
+
+app.addFlower = function () {
+	var loader = new THREE.ObjectLoader();
+	loader.load('/assets/flower.json', function(object) {
+	
+		app.scene.add(object);
+	});
+
 };
 
 app.addPlant = function () {
 
 	app.quaterWidth = Math.round( app.width / 30 );
 
-	app.group = new THREE.Object3D();
-	app.group.name = "Plant_group";
+	app.plant = new THREE.Object3D();
+	app.plant.name = "plant_group";
+
+	// app.plant_copy = new THREE.Object3D();
+	// app.plant_copy.name = "plant_group";
 
 	var loader = new THREE.ObjectLoader();
 	loader.load('/assets/grass_plant.json', function( object ) {
 		object.name = "plant";
-		object.traverse( function ( child ) {
-			if ( child instanceof THREE.Mesh ) {
-				child.material.specular = new THREE.Color( 0x00ff00 );
-				child.material.emissive = new THREE.Color( 0x006600 );
-				child.material.color.setHex( 0x00FF00 );
-				child.material.color.setRGB( 0, 1, 0 );
-				child.material.color = new THREE.Color( "rgb(0, 1, 0)" );
+		try {
+			object.traverse( function ( child ) {
+				if ( child instanceof THREE.Mesh ) {
+					child.material.specular = new THREE.Color( 0x00ff00 );
+					child.material.emissive = new THREE.Color( 0x006600 );
+					child.material.color.setHex( 0x00FF00 );
+					child.material.color.setRGB( 0, 1, 0 );
+					child.material.color = new THREE.Color( "rgb(0, 1, 0)" );
+
+					child.scale.set( 0.125, 0.125, 0.125 );
+					child.rotation.x = -90;
+	               	app.plant.add( child );
+				}
+			});
+		} catch (error) {}
+		app.scene.add( app.plant );
+		for ( var i = -(app.width); i <= app.width; i += 10 ) {
+			for ( var j = 0; j <= app.width / 6; j += 6 ) {
+			app.plant_copy = app.plant.clone();
+			app.plant_copy.name = "plant_group";
+			app.plant_copy.position.set( i / 2, -j, 0 );
+
+			app.scene.add( app.plant_copy );
+
 			}
-
-			for ( var i = 0; i <= app.width; i += app.quarterWidth ) {
-		      for ( var j = 0; j <= app.height; j += 8 ) {
-		        var instance = child.clone();
-		        instance.position.set( i / 2, j, 0 );
-		        app.group.add( instance );
-		      }
-		    }
-		});
-
-		app.group.position.x -= 50;
-		app.scene.add( object );
+			
+		}
 	});
 };
 
@@ -224,3 +262,9 @@ app.init = function () {
 };
 
 window.onload = app.init; // $(document).ready();
+
+
+
+
+
+
