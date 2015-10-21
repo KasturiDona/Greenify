@@ -42,6 +42,16 @@ app.animateRain = function () {
 			_.each(app.allPlants, function (plant) {
 				plant.scale.y += 0.001;
 			});
+
+
+		}
+		app.flowerObject = app.scene.getObjectByName("flower_group");
+		if ( app.flowerObject ) {
+			app.allFlowers = _.filter( app.scene.children, function (child) { return child.name === "flower_group" });
+			_.each(app.allFlowers, function (flower) {
+				flower.scale.y += 0.002;
+				flower.scale.x += 0.001;
+			});	
 		}
 	} else {
 		for ( var i = app.scene.children.length - 1; i >= 0 ; i-- ) {
@@ -108,16 +118,47 @@ app.addSun = function () {
 
 	app.renderer.render( app.scene, app.camera );
 	app.addFlower();
+	app.addClouds();
 	app.animate();
 };
 
-app.addFlower = function () {
-	var loader = new THREE.ObjectLoader();
-	loader.load('/assets/flower.json', function(object) {
-	
-		app.scene.add(object);
-	});
+app.addClouds = function () {
+	app.geometry = new THREE.SphereGeometry(600, 50, 25);
+	app.clouds = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("/assets/cloud3.png"), transparent: true });
+	app.meshClouds = new THREE.Mesh( app.geometry, app.clouds );
+	app.meshClouds.scale.set(1, 1, 1);
+	app.scene.add( app.meshClouds );
+};
 
+app.addFlower = function () {
+
+	app.quaterWidth = Math.round( app.width / 30 );
+
+	app.flower = new THREE.Object3D();
+	app.flower.name = "flower_group";
+
+	var loader = new THREE.ObjectLoader();
+	loader.load('/assets/flower.json', function( object ) {
+		try {
+			object.traverse( function ( child ) {
+				if ( child instanceof THREE.Mesh ) {
+	               	app.flower.add( child );
+				}
+			});
+		} catch (error) {}
+		app.scene.add( app.flower );
+		for ( var i = -(app.width); i <= app.width; i += 50 ) {
+			for ( var j = 0; j <= app.width / 10; j += 10 ) {
+			app.flower_copy = app.flower.clone();
+			app.flower_copy.name = "flower_group";
+			app.flower_copy.position.set( i / 5, -j, 0 );
+
+			app.scene.add( app.flower_copy );
+
+			}
+			
+		}
+	});
 };
 
 app.addPlant = function () {
