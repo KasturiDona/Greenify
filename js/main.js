@@ -166,7 +166,7 @@ app.addEventHandlers = function () {
 app.addSun = function () {
 	sunAdded = true;
 	var loader = new THREE.ObjectLoader();
-	loader.load('/assets/sun.json', function( object ) {
+	loader.load('assets/sun.json', function( object ) {
 		object.name = "the_sun";
 		object.position.set( 120, 60, 5 );
 		object.scale.x = 16;
@@ -192,7 +192,7 @@ app.addSun = function () {
 app.addClouds = function () {
 	cloudAdded = true;
 	app.geometry = new THREE.PlaneGeometry(200, 50);
-	app.clouds = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("/assets/cloud3.png"), transparent: true });
+	app.clouds = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("assets/cloud3.png"), transparent: true });
 	app.meshClouds = new THREE.Mesh( app.geometry, app.clouds );
 	app.meshClouds.scale.multiplyScalar(0.5);
 	app.meshClouds.position.z += 0;
@@ -211,7 +211,7 @@ app.addClouds = function () {
 app.addBirds = function () {
 	birdAdded = true;
 	app.geometry = new THREE.PlaneGeometry(50, 50);
-	app.bee = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("/assets/bee1.png"), transparent: true });
+	app.bee = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("assets/bee1.png"), transparent: true });
 	app.meshBee = new THREE.Mesh( app.geometry, app.bee );
 	app.meshBee.scale.multiplyScalar(0.25);
 	// app.meshBee.position.z += 0;
@@ -220,7 +220,7 @@ app.addBirds = function () {
 	app.scene.add( app.meshBee );
 
 	app.geometry = new THREE.PlaneGeometry(50, 50);
-	app.butterfly1 = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("/assets/butterfly1.png"), transparent: true });
+	app.butterfly1 = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("assets/butterfly1.png"), transparent: true });
 	app.meshButterfly1 = new THREE.Mesh( app.geometry, app.butterfly1 );
 	app.meshButterfly1.scale.multiplyScalar(0.25);
 	app.meshButterfly1.position.z += 0;
@@ -229,7 +229,7 @@ app.addBirds = function () {
 	app.scene.add( app.meshButterfly1 );
 
 	app.geometry = new THREE.PlaneGeometry(50, 50);
-	app.butterfly2 = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("/assets/butterfly2.png"), transparent: true });
+	app.butterfly2 = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("assets/butterfly2.png"), transparent: true });
 	app.meshButterfly2 = new THREE.Mesh( app.geometry, app.butterfly2 );
 	app.meshButterfly2.scale.multiplyScalar(0.25);
 	app.meshButterfly2.position.z += 0;
@@ -246,7 +246,7 @@ app.addFlower = function () {
 	app.flower.name = "flower_group";
 
 	var loader = new THREE.ObjectLoader();
-	loader.load('/assets/flower.json', function( object ) {
+	loader.load('assets/flower.json', function( object ) {
 		try {
 			object.traverse( function ( child ) {
 				if ( child instanceof THREE.Mesh ) {
@@ -284,7 +284,7 @@ app.addPlant = function () {
 	// app.plant_copy.name = "plant_group";
 
 	var loader = new THREE.ObjectLoader();
-	loader.load('/assets/grass_plant.json', function( object ) {
+	loader.load('assets/grass_plant.json', function( object ) {
 		object.name = "plant";
 		try {
 			object.traverse( function ( child ) {
@@ -325,7 +325,7 @@ app.addPlant = function () {
 // 	var loader = new THREE.JSONLoader();
 // 	app.quarterWidth = Math.round( app.width / 30 );
 
-//   	loader.load( "/assets/rain_drop.json", function( geometry ){
+//   	loader.load( "assets/rain_drop.json", function( geometry ){
 //     var material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
 //     var mesh = new THREE.Mesh( geometry, material );
 //     for ( var i = 0; i <= app.width; i += app.quarterWidth ) {
@@ -356,7 +356,7 @@ app.addRain = function ( execute ) {
     	app.particles.vertices.push( particle );
 	}
 
-	app.particleTexture = THREE.ImageUtils.loadTexture( "/assets/raindrop.png" );
+	app.particleTexture = THREE.ImageUtils.loadTexture( "assets/raindrop.png" );
 	app.particleMaterial = new THREE.PointsMaterial({ map: app.particleTexture, transparent: true, size: 5 });
 	app.particleSystem = new THREE.Points(app.particles, app.particleMaterial);
 
