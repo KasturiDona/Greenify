@@ -73,7 +73,7 @@ app.animateRain = function () {
 		if ( app.particleSystem.position.y <= -135 ) {
 			app.particleSystem.position.y = 0;
 		}
-		app.particleSystem.position.y -= 0.5;
+		app.particleSystem.position.y -= 0.7;
 
 		app.selectedObject = app.scene.getObjectByName("plant_group");
 		if ( app.selectedObject ) {
@@ -144,10 +144,12 @@ app.addEventHandlers = function () {
 		app.scene.remove( app.meshButterfly2 );
 		app.scene.remove( app.meshBee );
 		app.addRain( true );
+		$('#rain').hide();
 	});
 
 	// When the stop rain button is clicked, the sun, bee and butterflies are added back to the scene, the addRain function is called with the false argument which is used to stop the rain
 	$('#stop_rain').on('click', function () {
+		$('#rain').show();
 		var selectedObject = app.scene.getObjectByName( "the_sun" );
 		if ( !selectedObject ) {
 			app.addSun();
@@ -199,7 +201,6 @@ app.addSun = function () {
 	if ( !cloudAdded ) {
 		app.addClouds();
 	}
-
 	if ( !birdAdded ) {
 		app.addBirds();
 	}
