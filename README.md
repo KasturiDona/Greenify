@@ -9,16 +9,16 @@ The bee, butterflies, raindrops, clouds are .png files.
 Plane and sphere geometries are used to wrap these images so they can be used in THREE.js
 
 ## Technologies used
--Three.js
---OrbitControls.js
--Blender
--jQuery
--css
--underscore.js 
+- Three.js
+- OrbitControls.js
+- Blender
+- jQuery
+- css
+- underscore.js 
 
 ## Gems
--rubygems
--github-pages
+- rubygems
+- github-pages
 
 ## Deployment
 Greenify is deployed on gh-pages
